@@ -1,0 +1,139 @@
+// DefaultCoil
+const uint8_t* getDefaultCoilUse(void) {
+  return defaultCoilUse;
+}
+
+bool getDefaultCoilUse(uint8_t *array, size_t maxCount) {
+  if(maxCount != defaultCoilUse) return false;
+  memcpy(array, defaultCoilUse, sizeof(defaultCoilUse));
+  return true;
+}
+
+uint8_t getDefaultCoilUseCount() {
+  return defaultCoilUseCount;
+}
+
+// DefaultRegister
+const uint8_t* getDefaultRegisterUse(void) {
+  return defaultRegisterUse;
+}
+
+bool getDefaultRegisterUse(uint8_t *array, size_t maxCount) {
+  if(maxCount != defaultRegisterUse) return false;
+  memcpy(array, defaultRegisterUse, sizeof(defaultRegisterUse));
+  return true;
+}
+
+uint8_t getDefaultRegisterUseCount() {
+  return defaultRegisterUseCount;
+}
+
+// CustomCoil
+bool getCustomCoilUse(uint8_t *array, size_t maxCount) {
+  if(maxCount != customCoilUse) return false;
+  memcpy(array, customCoilUse, sizeof(customCoilUse));
+  return true;
+}
+
+bool setCustomCoilUse(const uint8_t *array, size_t maxCount) {
+  if (maxCount != customCoilUse) return false;
+  memcpy(customCoilUse, array, sizeof(array));
+  return true;
+}
+
+uint8_t getCustomRangeUseCount() {
+  return customRangeUseCount;
+}
+
+// CustomRegister
+bool getCustomRegisterUse(uint8_t *array, size_t maxCount) {
+  if(maxCount != customRegisterUse) return false;
+  memcpy(array, customRegisterUse, sizeof(customRegisterUse));
+  return true;
+}
+
+bool setCustomRegisterUse(const uint8_t *array, size_t maxCount) {
+  if (maxCount != customRegisterUse) return false;
+  memcpy(customRegisterUse, array, sizeof(array));
+  return true;
+}
+
+uint8_t getCustomRegisterUseCount() {
+  return customRegisterUseCount;
+}
+
+// SlaveRanges
+const Range* getSlaveRanges(void) {
+  return slaveRanges;
+}
+
+bool getSlaveRanges(Range *array, uint8_t maxCount) {
+    if (maxCount != rangeMapCount) return false;
+    memcpy(array, slaveRanges, sizeof(slaveRanges));
+    return true;
+}
+
+uint8_t getNumOfRangeMap() {
+  return rangeMapCount;
+}
+
+
+// header file 
+
+const uint8_t* getDefaultCoilUse(void);
+bool getDefaultCoilUse(uint8_t *array, size_t maxCount);
+uint8_t getDefaultCoilUseCount();
+
+const uint8_t* getDefaultRegisterUse(void);
+bool getDefaultRegisterUse(uint8_t *array, size_t maxCount);
+uint8_t getDefaultRegisterUseCount();
+
+bool getCustomCoilUse(uint8_t *array, size_t maxCount);
+bool setCustomCoilUse(const uint8_t *array, size_t maxCount);
+uint8_t getCustomRangeUseCount();
+
+bool getCustomRegisterUse(uint8_t *array, size_t maxCount);
+bool setCustomRegisterUse(const uint8_t *array, size_t maxCount);
+uint8_t getCustomRegisterUseCount();
+
+const Range* getSlaveRanges(void);
+bool getSlaveRanges(Range *array, uint8_t maxCount);
+uint8_t getNumOfRangeMap();
+
+// Getters for coil values
+ret_t getCoil_IR_Trio(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_IR_Mono(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_Lock(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_LED(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_IR_Trio_State(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_IR_Mono_State(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_IR_Latched_State(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_Blink_LEDS(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_Lock_State(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_OTA_Update_Start_Command(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_OTA_Update_Finish_Command(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+ret_t getCoil_OTA_Update_Abort_Command(modbus_data_t *settings, uint8_t *index, bool *values, size_t *values_size);
+
+// Getters for register values
+ret_t getRegister_Lock_Duration(modbus_data_t *settings, uint16_t *value);
+ret_t getRegister_Current_Version(modbus_data_t *settings, uint16_t *value);
+ret_t getRegister_OTA_Update_Data(modbus_data_t *settings, uint16_t *value);
+
+// Setters for coil values
+ret_t setCoil_IR_Trio(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_IR_Mono(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_Lock(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_LED(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_IR_Trio_State(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_IR_Mono_State(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_IR_Latched_State(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_Blink_LEDS(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_Lock_State(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_OTA_Update_Start_Command(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_OTA_Update_Finish_Command(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+ret_t setCoil_OTA_Update_Abort_Command(modbus_data_t *settings, uint8_t *index, bool *values, size_t values_size);
+
+// Setters for register values
+ret_t setRegister_Lock_Duration(modbus_data_t *settings, uint16_t value);
+ret_t setRegister_Current_Version(modbus_data_t *settings, uint16_t value);
+ret_t setRegister_OTA_Update_Data(modbus_data_t *settings, uint16_t value);

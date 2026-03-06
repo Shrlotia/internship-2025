@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Panasonic IR Raw to Control Code</title>
+</head>
+<body>
+  <h2>IR Decode</h2>
+  <textarea id="input" rows="6" cols="80"></textarea><br>
+  <button onclick="decode()">Decode</button>
+  <pre id="output"></pre>
+
+  <script>
+    function decompress(input) {
+      const output = [];
+      let src = 0;
+      let dest = 0;
+      while (src < input.length) {
+        const type = input[src] >> 5;
+        if (type === 0) {
+          let len = 1 + input[src];
+          src++;
+          while (len-- > 0) output[dest++] = input[src++];
+        } else if (type < 7) {
+          const ofs = 256 * (input[src] & 31) + input[src + 1];
+          let len = 2 + (input[src] >> 5);
+          src += 2;
+          let ref = dest - ofs - 1;
+          while (len-- > 0) output[dest++] = output[ref++];
+        } else {
+          const ofs = 256 * (input[src] & 31) + input[src + 2];
+          let len = 9 + input[src + 1];
+          src += 3;
+          let ref = dest - ofs - 1;
+          while (len-- > 0) output[dest++] = output[ref++];
+        }
+      }
+      return output;
+    }
+
+    function decode() {
+      const base64 = document.getElementById('input').value.replace(/\s+/g, '');
+      try {
+        const raw = new Uint8Array([...atob(base64)].map(c => c.charCodeAt(0)));
+        const decompressed = decompress(raw);
+
+        // Extract pulse durations (every 2 bytes: low + high)
+        const durations = [];
+        for (let i = 0; i < decompressed.length; i += 2) {
+          durations.push(decompressed[i + 1] * 256 + decompressed[i]);
+        }
+
+        const segments = splitIrSignalByGap(durations, 5000);
+        if (segments.length === 0) throw new Error("No valid segments found.");
+
+        const analyze = (durations) => {
+          const bits = [];
+          for (let i = 2; i < durations.length - 1; i += 2) {
+            const pulse = durations[i];
+            const space = durations[i + 1];
+            if (Math.abs(pulse - 432) < 100) {
+              if (Math.abs(space - 432) < 150) bits.push(0);
+              else if (Math.abs(space - 1290) < 150) bits.push(1);
+            }
+          }
+          const bytes = [];
+          for (let i = 0; i < bits.length; i += 8) {
+            let byte = 0;
+            for (let j = 0; j < 8 && (i + j) < bits.length; j++) {
+              byte |= bits[i + j] << j;
+            }
+            bytes.push(byte);
+          }
+          return bytes;
+        };
+
+        const hexBytes1 = analyze(segments[0]).map(b => b.toString(16).padStart(2, '0')).join(' ');
+        let output = `Hex bytes (segment 1):\n${hexBytes1}\n`;
+
+        if (segments.length > 1) {
+          const hexBytes2 = analyze(segments[1]).map(b => b.toString(16).padStart(2, '0')).join(' ');
+          output += `\nHex bytes (segment 2):\n${hexBytes2}\n`;
+
+          output += `\nSegments identical: ${hexBytes1 === hexBytes2 ? 'Yes' : 'No'}`;
+        }
+
+        document.getElementById('output').textContent = output;
+
+      } catch (err) {
+        document.getElementById('output').textContent = 'Invalid input: ' + err.message;
+      }
+    }
+
+    function splitIrSignalByGap(durations, gapThreshold = 5000) {
+      const segments = [];
+      let current = [];
+      for (let i = 0; i < durations.length; i += 2) {
+        const pulse = durations[i];
+        const space = durations[i + 1];
+        if (space > gapThreshold && current.length > 0) {
+          segments.push(current);
+          current = [];
+        } else {
+          current.push(pulse, space);
+        }
+      }
+      if (current.length > 0) segments.push(current);
+      return segments;
+    }
+  </script>
+</body>
+</html>

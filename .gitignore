@@ -1,0 +1,32 @@
+# === macOS ===
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# === Thumbnails ===
+._*
+
+# === Python ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+
+# === Virtual_environment ===
+venv/
+.venv/
+env/
+ENV/
+dist/
+
+# === logs ===
+*.log
+
+# === IDE_Editor ===
+.vscode/
+.idea/
+*.swp
+
+# === Jupyter ===
+.ipynb_checkpoints/

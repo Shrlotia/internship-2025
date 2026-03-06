@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Panasonic IR Raw to Control Code</title>
+</head>
+<body>
+  <h2>IR Decode</h2>
+  <textarea id="input" rows="6" cols="80"></textarea><br>
+  <button onclick="decode()">Decode</button>
+  <pre id="output"></pre>
+
+  <script>
+    function decompress(input) {
+      const output = [];
+      let src = 0;
+      let dest = 0;
+      while (src < input.length) {
+        const type = input[src] >> 5;
+        if (type === 0) {
+          let len = 1 + input[src];
+          src++;
+          while (len-- > 0) output[dest++] = input[src++];
+        } else if (type < 7) {
+          const ofs = 256 * (input[src] & 31) + input[src + 1];
+          let len = 2 + (input[src] >> 5);
+          src += 2;
+          let ref = dest - ofs - 1;
+          while (len-- > 0) output[dest++] = output[ref++];
+        } else {
+          const ofs = 256 * (input[src] & 31) + input[src + 2];
+          let len = 9 + input[src + 1];
+          src += 3;
+          let ref = dest - ofs - 1;
+          while (len-- > 0) output[dest++] = output[ref++];
+        }
+      }
+      return output;
+    }
+
+    function decode() {
+      const base64 = document.getElementById('input').value.replace(/\\s+/g, '');
+      try {
+        const raw = new Uint8Array([...atob(base64)].map(c => c.charCodeAt(0)));
+        const decompressed = decompress(raw);
+
+        // Extract pulse durations (every 2 bytes: low + high)
+        const durations = [];
+        for (let i = 0; i < decompressed.length; i += 2) {
+          durations.push(decompressed[i + 1] * 256 + decompressed[i]);
+        }
+
+        // Analyze durations into bits
+        const bits = [];
+        for (let i = 2; i < durations.length - 1; i += 2) {
+          const pulse = durations[i];
+          const space = durations[i + 1];
+          if (Math.abs(pulse - 432) < 100) {
+            if (Math.abs(space - 432) < 150) bits.push(0);
+            else if (Math.abs(space - 1290) < 150) bits.push(1);
+          }
+        }
+
+        // Convert bits to bytes
+        const bytes = [];
+        for (let i = 0; i < bits.length; i += 8) {
+          let byte = 0;
+          for (let j = 0; j < 8 && (i + j) < bits.length; j++) {
+            byte |= bits[i + j] << j;
+          }
+          bytes.push(byte);
+        }
+
+        const hex = bytes.map(b => b.toString(16).padStart(2, '0')).join(' ');
+        document.getElementById('output').textContent = `Hex bytes:\n${hex}`;
+      } catch (err) {
+        document.getElementById('output').textContent = 'Invalid input: ' + err.message;
+      }
+    }
+  </script>
+</body>
+</html>
